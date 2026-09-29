@@ -1,127 +1,132 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <stdexcept>
-#include <algorithm>
 
-using std::vector;
+using std::vector, std::cout;
 
 class Z2 {
 public:
     int value;
 
-    Z2(int v = 0) : value((v % 2 + 2) % 2) {}
+    Z2(int v = 0) {
+        value = (v % 2 + 2) % 2;
+
+    }
 
     Z2 operator+(const Z2& other) const { return Z2(value + other.value); }
     Z2 operator-(const Z2& other) const { return Z2(value - other.value); }
+
     Z2 operator*(const Z2& other) const { return Z2(value * other.value); }
-    Z2 operator/(const Z2& other) const {
-        if (other.value == 0) {
-            throw std::runtime_error("Division by zero in Z2.");
-        }
-        return Z2(value);
-    }
 
     bool operator==(const Z2& other) const { return value == other.value; }
     bool operator!=(const Z2& other) const { return value != other.value; }
 };
 
-using Matrix = vector<vector<Z2> >;
 
-Matrix sestavMatici(int n) {
+using ScalarType = Z2;
+using Matrix = vector<vector<ScalarType> >;
+
+Matrix naplnMatici(int n) {
+
     int celkem = n * n;
-    Matrix A(celkem, vector<Z2>(celkem, 0));
+
+    Matrix mat(celkem, vector<ScalarType>(celkem, 0));
 
     int dx[5] = {0, -1, 1, 0, 0};
     int dy[5] = {0, 0, 0, -1, 1};
 
-    for (int y = 0; y < n; ++y) {
-        for (int x = 0; x < n; ++x) {
-            int button_index = x + n * y;
+    for (int y = 0; y < n; y++) {
+        for (int x = 0; x < n; x++) {
+            int btn = x + n * y;
 
-            for (int d = 0; d < 5; ++d) {
-                int nx = x + dx[d];
-                int ny = y + dy[d];
+            for (int s = 0; s < 5; s++) {
+                int nx = x + dx[s];
+                int ny = y + dy[s];
 
                 if (nx >= 0 && nx < n && ny >= 0 && ny < n) {
-                    int affected_index = nx + n * ny;
-                    A[affected_index][button_index] = 1;
+                    int cil = nx + n * ny;
+                    mat[cil][btn] = 1;
                 }
             }
         }
     }
-    return A;
-}
-vector<Z2> solveAxb(Matrix A, vector<Z2> b) {
-    int N = A.size();
-    int aktRadek = 0;
-    vector<int> pivotProSloupec(N, -1);
 
-    for (int col = 0; col < N && aktRadek < N; ++col) {
-        int vybranyRadek = -1;
-        for (int r = aktRadek; r < N; ++r) {
-            if (A[r][col] != 0) {
-                vybranyRadek = r;
+    return mat;
+
+}
+
+vector<ScalarType> reseniAxb(Matrix A, vector<ScalarType> b) {
+    int N = A.size();
+    int radek = 0;
+
+    vector<int> pivotRadek(N, -1);
+
+    for (int col = 0; col < N && radek < N; col++) {
+        int pivot = -1;
+        for (int i = radek; i < N; i++) {
+            if (A[i][col].value == 1) {
+                pivot = i;
                 break;
             }
         }
-        if (vybranyRadek == -1) {
+
+        if (pivot == -1) {
             continue;
         }
 
-        std::swap(A[aktRadek], A[vybranyRadek]);
-        std::swap(b[aktRadek], b[vybranyRadek]);
-        pivotProSloupec[col] = aktRadek;
+        std::swap(A[radek], A[pivot]);
+        std::swap(b[radek], b[pivot]);
+        pivotRadek[col] = radek;
 
-        for (int r = 0; r < N; ++r) {
-            if (r != aktRadek && A[r][col] != 0) {
-                for (int c = col; c < N; ++c) {
-                    A[r][c] = A[r][c] - A[aktRadek][c];
+        for (int i = 0; i < N; i++) {
+            if (i != radek && A[i][col].value == 1) {
+                for (int j = col; j < N; j++) {
+                    A[i][j] = A[i][j] - A[radek][j];
                 }
-                b[r] = b[r] - b[aktRadek];
+                b[i] = b[i] - b[radek];
             }
         }
-        aktRadek++;
+        radek++;
     }
 
-    vector<Z2> x(N, 0);
-    for (int col = 0; col < N; ++col) {
-        if (pivotProSloupec[col] != -1) {
-            x[col] = b[pivotProSloupec[col]];
+    vector<ScalarType> vysledek(N, 0);
+    for (int c = 0; c < N; c++) {
+        if (pivotRadek[c] != -1) {
+            vysledek[c] = b[pivotRadek[c]];
         }
     }
-    return x;
+    return vysledek;
 }
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Invalid number of arguments\n";
         return -1;
     }
 
-    const int n = std::stoi(argv[1]);
-    const int N = n * n;
+    int n = std::stoi(argv[1]);
+    int N = n * n;
 
     if (argc != N + 2) {
-        std::cerr << "Invalid number of arguments\n";
         return -1;
     }
 
-    vector<Z2> b;
-    b.reserve(N);
-    for (int i = 0; i < N; ++i) {
-        b.push_back(Z2(std::stoi(argv[i + 2])));
+    vector<ScalarType> rhs;
+    for (int i = 0; i < N; i++) {
+        rhs.push_back(ScalarType(std::stoi(argv[i + 2])));
     }
-    Matrix A = sestavMatici(n);
 
-    vector<Z2> x = solveAxb(A, b);
-    for (int i = 0; i < N; ++i) {
-        std::cout << x[i].value;
+    Matrix mat = naplnMatici(n);
+
+    vector<ScalarType> res = reseniAxb(mat, rhs);
+
+    for (int i = 0; i < N; i++) {
+        cout << res[i].value;
         if (i < N - 1) {
-            std::cout << " ";
+            cout << " ";
         }
     }
-    std::cout << "\n";
+
+    cout << "\n";
 
     return 0;
 }
