@@ -116,14 +116,11 @@ int main(int argc, char* argv[]) {
     }
 
     Matrix mat = naplnMatici(n);
-
+    
     vector<ScalarType> res = reseniAxb(mat, rhs);
 
     for (int i = 0; i < N; i++) {
-        cout << res[i].value;
-        if (i < N - 1) {
-            cout << " ";
-        }
+        cout << res[i].value << " ";
     }
 
     cout << "\n";
