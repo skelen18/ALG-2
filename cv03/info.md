@@ -1,0 +1,1 @@
+### v hodine jsem nedaval uz, bylo tam jak v saune a uz jsem to nedodelal, kazdopadne tohle ma byt template pro vypracovani ulohy avl stromu v kelvinu, takze to pak dodelam, ale main.cpp z cv03 uz asi nebudu delat
