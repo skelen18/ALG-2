@@ -1,0 +1,1 @@
+//pak vypracuju, mam na to 6 dni chill

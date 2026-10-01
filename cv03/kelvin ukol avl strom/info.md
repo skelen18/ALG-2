@@ -1,0 +1,1 @@
+### pak to dodelam, zatim vytvarim jen soubory pro to abych vypracoval ten ukol, ale budu vychazet z toho main.cpp ze cviceni
