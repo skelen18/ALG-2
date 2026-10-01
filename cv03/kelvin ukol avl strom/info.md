@@ -2,3 +2,8 @@
 
 v zadani je tento prikaz pro otevreni dat z textaku pro test:
 ./main construction_data.txt deletion_data.txt
+
+ja pro sve vyuziti ale pouziju prikaz:
+./main data.txt delete.txt
+
+*z nejakeho duvodu to je proste takto v kelvinu pri stahnuti testu, treba to bude jinak, zjistim po vloznei do kelvina*
