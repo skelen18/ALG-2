@@ -1,8 +1,15 @@
 //nedokoncená implementace AVL stromu, ale v hodine bylo moc horko a uz jsem umiral
 #include <iostream>
 #include <algorithm>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <queue>
 
 using keyType = int;
+
+using std::vector;
 
 class Node {
 public:
@@ -18,7 +25,13 @@ public:
 
 class AVLTree {
 public:
+    Node* root;
+
     AVLTree() : root(nullptr) {}
+
+    ~AVLTree() {
+        clear(root);    
+    }
 
     bool find(keyType item) const {
         return find(root,item);
@@ -37,13 +50,81 @@ public:
         root = insert(root, item);
     }
 
+    void erase(keyType item) {
+        root = erase(root, item);
+    }
+
+    void postorderPrint() const {
+        postorderPrint(root);
+        std::cout << "\n";
+    }
+
+    void postorderPrint(Node* node) const {
+        if(node == nullptr) {
+            return;
+        }
+        postorderPrint(node->left);
+        postorderPrint(node->right);
+        std::cout << node->key << " ";
+    }
+    
+    void preOrderPrint() const {
+        preOrderPrint(root);
+        std::cout << "\n";
+    }
+
+    void preOrderPrint(Node* node) const {
+        if(node == nullptr) {
+            return;
+        }
+        std::cout << node->key << " ";
+        preOrderPrint(node->left);
+        preOrderPrint(node->right);
+    }
+
     void inOrderPrint() const {
         inOrderPrint(root);
         std::cout << "\n";
     }
 
+    void printLevelOrder() const {
+        if (root == nullptr) {
+            std::cout << "\n";
+            return;
+        }
+
+        std::queue<const Node*> nodes;
+        nodes.push(root);
+
+        while (!nodes.empty()) {
+            const std::size_t levelSize = nodes.size();
+            for (std::size_t i = 0; i < levelSize; ++i) {
+                const Node* node = nodes.front();
+                nodes.pop();
+                std::cout << node->key << " ";
+
+                if (node->left != nullptr) {
+                    nodes.push(node->left);
+                }
+                if (node->right != nullptr) {
+                    nodes.push(node->right);
+                }
+            }
+            std::cout << "\n";
+        }
+    }
+
 private:
-    Node* root;
+    void clear(Node* node) {
+        if(node == nullptr) {
+            return;
+        }
+        clear(node->left);
+        clear(node->right);
+        delete node;
+    }
+
+    
 
     static int getHeight(const Node* node) {
         return node == nullptr ? -1 : node->height;
@@ -76,6 +157,38 @@ private:
             return node;
         }
         updateHeight(node);
+        return balance(node);
+    }
+
+    static Node* minimum(Node* node) {
+        while(node != nullptr && node->left != nullptr) {
+            node = node->left;
+        }
+        return node;
+    }
+
+    Node* erase(Node* node, keyType item) {
+        if(node == nullptr) {
+            return nullptr;
+        }
+
+        if(item < node->key) {
+            node->left = erase(node->left, item);
+        } else if(item > node->key) {
+            node->right = erase(node->right, item);
+        } else {
+            if(node->left == nullptr || node->right == nullptr) {
+                Node* child = node->left != nullptr ? node->left : node->right;
+                delete node;
+                return child;
+            }
+
+            Node* successor = minimum(node->right);
+            node->key = successor->key;
+            node->right = erase(node->right, successor->key);
+        }
+
+        node->height = 1 + std::max(getHeight(node->left), getHeight(node->right));
         return balance(node);
     }
 
@@ -129,7 +242,33 @@ private:
     }
 };
 
-int main() {
+vector<int> readIntegersFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    vector<int> numbers;
+    int number;
+
+    while (file >> number) {
+        numbers.push_back(number);
+    }
+
+    return numbers;
+}
+
+int main(int argc, char* argv[] ) {
+
+    vector<int> numbers = readIntegersFromFile("input.txt");
     AVLTree tree;
+
+    for(int number : numbers) {
+        tree.insert(number);
+    }
+
+    tree.postorderPrint();
+    tree.preOrderPrint();
+    tree.inOrderPrint();
+    tree.updateHeight(tree.root);
+    tree.printLevelOrder();
+
+    
     return 0;
 }
