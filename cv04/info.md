@@ -1,0 +1,1 @@
+### dneska jsem nemel naladu na to opisovat jene z tabule, takze nemam svuj main.cpp
