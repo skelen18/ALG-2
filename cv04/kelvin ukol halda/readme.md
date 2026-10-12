@@ -7,3 +7,7 @@ clang++ -std=c++17 -Wall -Wextra main.cpp -o main
 ./main 2 vsechny\ testy/test0/input1
 
 *pripadne si to rehodit do stejneho adresare at se nepise cesta do te slozky zbytecne kretensky kdyz jsem to delal s mezerou jak debil, ale chill*
+
+
+kdyztak pro runnuti testu z pythonu:
+python3 "vsechny testy/run-tests.py" ./main
