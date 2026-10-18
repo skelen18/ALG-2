@@ -173,7 +173,6 @@ int main(){
         int pocet = solution_path.size() - 1;
         std::cout << n << " pairs - " << pocet << " transports\n";
     }
-    std::cout << "\n";
 
     return 0;
 }
